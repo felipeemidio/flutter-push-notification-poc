@@ -1,26 +1,27 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_notification_poc/home.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:flutter_notification_poc/main_widget.dart';
+import 'package:flutter_notification_poc/services/local_push_notification_service.dart';
+import 'package:flutter_notification_poc/services/push_notification_service.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'App with Notification',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const HomePage(),
-    );
-  }
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider<LocalPushNotificationService>(
+          create: (_) => LocalPushNotificationService(),
+        ),
+        Provider<PushNotificationService>(
+          create: (context) => PushNotificationService(
+            localPushNotificationService: context.read<LocalPushNotificationService>(),
+          ),
+        ),
+      ],
+      child: const MainWidget(),
+    ),
+  );
 }
 
